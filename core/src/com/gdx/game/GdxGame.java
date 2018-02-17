@@ -12,18 +12,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.gdx.game.core.control.PlayerInputController;
 import com.gdx.game.unit.movable.player.Mario;
 
 import java.util.Iterator;
 
 public class GdxGame extends ApplicationAdapter {
-	public static final int FRAME_COLS = 6;
-	public static final int FRAME_ROWS = 1;
-	public static final float FRAME_ACTION_DURATION = 0.125f;
 
+	public static final float HORIZONTAL_BOUNDARY = 800f;
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	private Texture img;
@@ -42,7 +43,10 @@ public class GdxGame extends ApplicationAdapter {
 
 	private float stateTime = 0f;
 
+	private World world = null;
+
 	private Mario mario = null;
+	PlayerInputController playerInputProcessor = null;
 
 	private void spawnRaindrop() {
 		Rectangle raindrop = new Rectangle();
@@ -63,6 +67,8 @@ public class GdxGame extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 480);
 		batch = new SpriteBatch();
+		world = new World(new Vector2(0, -10), true);
+
 		img = new Texture("badlogic.jpg");
 		dropImage = new Texture("droplet.png");
 		bucketImage = new Texture("bucket.png");
@@ -79,6 +85,9 @@ public class GdxGame extends ApplicationAdapter {
 		font = new BitmapFont();
 
 		mario = new Mario(25, 25);
+		playerInputProcessor = new PlayerInputController(mario);
+		Gdx.input.setInputProcessor(playerInputProcessor);
+
 		/*
 		// Load the sprite sheet
 		marioSheet =  new Texture("mario.png");
@@ -106,6 +115,7 @@ public class GdxGame extends ApplicationAdapter {
 
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
+
 		batch.begin();
 		batch.draw(bucketImage, bucket.getX(), bucket.getY());
 		for (Rectangle raindrop: raindrops){
@@ -118,6 +128,7 @@ public class GdxGame extends ApplicationAdapter {
 		font.draw(batch, Float.toString(frameRate), 800 - 100, 400 - 10);
 		batch.end();
 
+		playerInputProcessor.moveUnit();
 		if (Gdx.input.isTouched()){
 			Vector3 touchPos = new Vector3();
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -125,21 +136,7 @@ public class GdxGame extends ApplicationAdapter {
 			bucket.setX(touchPos.x - 64/2);
 		}
 
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-			//bucket.setX(bucket.getX() - 200 * Gdx.graphics.getDeltaTime());
-			mario.setX(mario.getX() - 100 * Gdx.graphics.getDeltaTime());
-			mario.updateWalkingState(Gdx.graphics.getDeltaTime());
-		}
 
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-			//bucket.setX(bucket.getX() + 200 * Gdx.graphics.getDeltaTime());
-			mario.setX(mario.getX() + 100 * Gdx.graphics.getDeltaTime());
-			mario.updateWalkingState(Gdx.graphics.getDeltaTime());
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
-			//bucket.setX(bucket.getX() + 200 * Gdx.graphics.getDeltaTime());
-			mario.updateStandingState();
-		}
 
 		if (bucket.getX() < 0){
 			bucket.setX(0);
@@ -147,11 +144,6 @@ public class GdxGame extends ApplicationAdapter {
 			bucket.setX(800 - 64);
 		}
 
-		if (mario.getX() < 0){
-			mario.setX(0);
-		} else if (mario.getX() > 800 - 64){
-			mario.setX(800 - 64);
-		}
 
 		if (TimeUtils.nanoTime() - lastDropTime > 1000000000){
 			spawnRaindrop();

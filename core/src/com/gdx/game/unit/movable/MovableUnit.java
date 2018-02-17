@@ -1,6 +1,7 @@
 package com.gdx.game.unit.movable;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.gdx.game.GdxGame;
 import com.gdx.game.unit.GenericUnit;
 import sun.net.www.content.text.Generic;
 
@@ -15,15 +16,16 @@ public abstract class MovableUnit extends GenericUnit {
     public float DURATION_WALKING_FRAME = DURATION_FRAME_FULL_STATES / NO_FRAME_ROWS * INDEX_WALKING_FRAME.length;
 
     public static final int NO_FRAME_WALK_STATES = 6;
+    public static final float UNIT_HORIZONTAL_BOUNDARY = GdxGame.HORIZONTAL_BOUNDARY;
 
     public MovableUnit(float x, float y){
 
-        super(x, y, 0.75f, 0.125f, 6, 1);
+        super(x, y, 0.6f, 0.1f, 6, 1);
     }
 
 
     public MovableUnit(){
-        super(0, 0, 0.75f, 0.125f, 6, 1);
+        super(0, 0, 0.6f, 0.1f, 6, 1);
     }
 
     public TextureRegion getStandingFrame(){

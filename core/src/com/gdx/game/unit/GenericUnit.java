@@ -12,6 +12,8 @@ public abstract class GenericUnit extends Rectangle{
     private int NO_FRAME_COLS = 1;
     private int NO_FRAME_ROWS = 1;
 
+    private float unitHeight = 0f;
+    private float unitWidth = 0f;
 
     protected float state = 0f;
     protected Animation<TextureRegion> unitAnimation = null;
@@ -44,9 +46,12 @@ public abstract class GenericUnit extends Rectangle{
 
     protected void setupUnitAnimation(){
         Texture textureSheet = this.getTexture();
+        unitHeight = textureSheet.getHeight()/NO_FRAME_ROWS;
+        unitWidth = textureSheet.getWidth()/NO_FRAME_COLS;
+
         TextureRegion[][] textureRegion2D = TextureRegion.split(textureSheet,
-                textureSheet.getWidth()/NO_FRAME_COLS,
-                textureSheet.getHeight()/NO_FRAME_ROWS);
+                (int)this.getUnitWidth(),
+                (int)this.getUnitHeight());
 
         TextureRegion[] textureRegion = new TextureRegion[NO_FRAME_COLS * NO_FRAME_ROWS];
         int index = 0;
@@ -57,6 +62,14 @@ public abstract class GenericUnit extends Rectangle{
         }
         this.unitAnimation = new Animation<TextureRegion>(DURATION_FRAME_FULL_STATES, textureRegion);
 
+    }
+
+    public float getUnitWidth(){
+        return this.unitWidth;
+    }
+
+    public float getUnitHeight(){
+        return this.unitHeight;
     }
 
     public float getState() {
